@@ -1,3 +1,5 @@
+import math
+
 tableI = ([0.5, 6400, 0.4],
                 [1.0, 6790, 0.55],
                 [5.0, 7150, 1.7],
@@ -9,14 +11,14 @@ tableI = ([0.5, 6400, 0.4],
                 [1200.0, 12010, 39])
 
 
-def linInterpol(I, tbl, index):
+def linInterpol(I, tbl, index=1):
         if I < tbl[0][0]:
                 return tbl[0][index]
         elif I > tbl[len(tbl)-1][0]:
                 return tbl[len(tbl)-1][index]
         else:
                 for i in range(len(tbl)-1):
-                        if I > tbl[i][0] and I < tbl[i+1][0]:
+                        if tbl[i][0] < I <= tbl[i+1][0]:
                                 return tbl[i][index] + \
         (tbl[i+1][index] - tbl[i][index])/(tbl[i+1][0] - tbl[i][0])*(I - tbl[i][0])
         
@@ -41,9 +43,10 @@ def logInterpol(T, tbl, index=1):
                 return tbl[len(tbl)-1][index]
         else:
                 for i in range(len(tbl)-1):
-                        if T > tbl[i][0] and T < tbl[i+1][0]:
-                                #return
-                                pass
+                        if tbl[i][0] < T <= tbl[i+1][0]:
+                                print(tbl[i][0], tbl[i+1][0], tbl[i][index], tbl[i+1][index], T)
+                                return tbl[i][index] +\
+                                       (math.log(tbl[i+1][index]))/(tbl[i+1][0] - tbl[i][0])*(T - tbl[i][0])
         
 def my_func(x):
 	return x
@@ -66,6 +69,11 @@ def simpsonIntegr(a, b, func, stepcnt=41):
 def integrFunc(x):
 	return x*(T0 + (Tw - T0)*x**n)
 
+def difRungeKutta():
+        #I_n+1 = return I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
+        #U_n+1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
+
 if __name__ == "__main__":
 	#print(simpsonIntegr(0, 5, my_func))
-	print(linInterpol(7, tableI, 1))
+	#print(linInterpol(7, tableI, 1))
+        print(linInterpol(12500, tableSigm))
