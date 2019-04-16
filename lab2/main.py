@@ -45,8 +45,9 @@ def logInterpol(T, tbl, index=1):
                 for i in range(len(tbl)-1):
                         if tbl[i][0] < T <= tbl[i+1][0]:
                                 print(tbl[i][0], tbl[i+1][0], tbl[i][index], tbl[i+1][index], T)
-                                return tbl[i][index] +\
-                                       (math.log(tbl[i+1][index]))/(tbl[i+1][0] - tbl[i][0])*(T - tbl[i][0])
+                                return\
+math.exp(math.log(tbl[i][index]) +
+        (math.log(tbl[i+1][index]) - math.log(tbl[i][index]))*(T - tbl[i][0])/(tbl[i+1][0] - tbl[i][0]))
         
 def my_func(x):
 	return x
@@ -72,8 +73,9 @@ def integrFunc(x):
 def difRungeKutta():
         #I_n+1 = return I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
         #U_n+1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
+        pass
 
 if __name__ == "__main__":
 	#print(simpsonIntegr(0, 5, my_func))
 	#print(linInterpol(7, tableI, 1))
-        print(linInterpol(12500, tableSigm))
+        print(logInterpol(13950, tableSigm))
