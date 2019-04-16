@@ -1,5 +1,6 @@
 import math
 
+
 tableI = ([0.5, 6400, 0.4],
                 [1.0, 6790, 0.55],
                 [5.0, 7150, 1.7],
@@ -48,9 +49,8 @@ def logInterpol(T, tbl, index=1):
                                 return\
 math.exp(math.log(tbl[i][index]) +
         (math.log(tbl[i+1][index]) - math.log(tbl[i][index]))*(T - tbl[i][0])/(tbl[i+1][0] - tbl[i][0]))
-        
-def my_func(x):
-	return x
+
+
 
 # calculating an integral by Simpson's method
 def simpsonIntegr(a, b, func, stepcnt=41):
@@ -67,15 +67,24 @@ def simpsonIntegr(a, b, func, stepcnt=41):
 
 		return ret*step/3
 
+
 def integrFunc(x):
 	return x*(T0 + (Tw - T0)*x**n)
+
 
 def difRungeKutta():
         #I_n+1 = return I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
         #U_n+1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
         pass
 
+
 if __name__ == "__main__":
 	#print(simpsonIntegr(0, 5, my_func))
 	#print(linInterpol(7, tableI, 1))
-        print(logInterpol(13950, tableSigm))
+        #print(logInterpol(13950, tableSigm))
+
+        dt = 1e-03
+        step_num = 1000
+        I_0 = 0.2 #А
+        U_0 = 1500 #В
+        R = None #pass
