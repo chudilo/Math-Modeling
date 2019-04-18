@@ -13,7 +13,7 @@ tableI = ([0.5, 6400, 0.4],
 
 
 def linInterpol(I, tbl, index=1):
-        if I < tbl[0][0]:
+        if I <= tbl[0][0]:
                 return tbl[0][index]
         elif I > tbl[len(tbl)-1][0]:
                 return tbl[len(tbl)-1][index]
@@ -22,7 +22,6 @@ def linInterpol(I, tbl, index=1):
                         if tbl[i][0] < I <= tbl[i+1][0]:
                                 return tbl[i][index] + \
         (tbl[i+1][index] - tbl[i][index])/(tbl[i+1][0] - tbl[i][0])*(I - tbl[i][0])
-
 
 tableSigm = ([4000,  0.031],
                 [5000, 0.27],
@@ -38,14 +37,13 @@ tableSigm = ([4000,  0.031],
 
 
 def logInterpol(T, tbl, index=1):
-    if T < tbl[0][0]:
+    if T <= tbl[0][0]:
         return tbl[0][index]
     elif T > tbl[len(tbl)-1][0]:
         return tbl[len(tbl)-1][index]
     else:
         for i in range(len(tbl)-1):
                 if tbl[i][0] < T <= tbl[i+1][0]:
-                        print(tbl[i][0], tbl[i+1][0], tbl[i][index], tbl[i+1][index], T)
                         return math.exp(math.log(tbl[i][index]) +\
 (math.log(tbl[i+1][index]) - math.log(tbl[i][index]))*(T - tbl[i][0])/(tbl[i+1][0] - tbl[i][0]))
 
@@ -66,20 +64,45 @@ def simpsonIntegr(a, b, func, stepcnt=41):
 		return ret*step/3
 
 
+def specialSimpson(I):
+    R = 0.35
+    zList = [r*1.0/40/R for r in range(41)]
+    # print(zList)
+    res = logInterpol(getT(I,zList[0]), tableSigm)*zList[0] +\
+     logInterpol(getT(I,zList[40]), tableSigm)*zList[40]
+
+    for i in range(1, 40):
+        if i%2 == 1:
+            res += 4*logInterpol(getT(I,zList[i]), tableSigm)*zList[i]
+        else:
+            res += 2*logInterpol(getT(I,zList[i]), tableSigm)*zList[i]
+
+    return (res*1.0/40)/3
+
+
 def integrFunc(x):
 	return x*(T0 + (Tw - T0)*x**n)
 
 
+def getT(I, z):
+    T_w = 2000
+    T_0 = linInterpol(I,tableI, index=1)
+    n = linInterpol(I, tableI, index=2)
+    #print("T_0 =", T_0, "; n =", n)
+    #print(I, z)
+    #print(T_0, T_w , z, n)
+    return T_0 + (T_w - T_0)*z**n
 
 
 def getR(I):
     l_e = 12 #sm
-    R = 0.35 #sm
+    R = 0.35 #1sm
+    #sigm = simpsonIntegr(0, 1, lambda z: z*(T_0 + (T_w - T_0)*z**n))
     #sigm
-    return l_e/(2*math.pi*R*R)
+    return l_e/(2*math.pi*R*R*specialSimpson(I))
 
 
-def gU(I):
+def dU(I):
     C_k = 150e-6
     return -I/C_k
 
@@ -92,28 +115,43 @@ def dI(I, U_c):
 
 
 def difRungeKutta(dt, I_n, U_n):
+    m1 = dU(I_n)
+    k1 = dI(I_n, U_n)
 
-    m1 =
+    m2 = dU(I_n + dt*k1/2)
+    k2 = dI(I_n + dt*k1/2, U_n + dt*m1/2)
+
+    m3 = dU(I_n + dt*k2/2)
+    k3 = dI(I_n + dt*k2/2, U_n + dt*m2/2)
+
+    m4 = dU(I_n + dt*k1/2)
+    k4 = dI(I_n + dt*k3, U_n + dt*m3)
+
     U_n1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
+    I_n1 = I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
     #I_n+1 = return I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
     #U_n+1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
-    pass
-    return None, None
+    return I_n1, U_n1
 
 if __name__ == "__main__":
 	#print(simpsonIntegr(0, 5, my_func))
 	#print(linInterpol(7, tableI, 1))
     #print(logInterpol(13950, tableSigm))
-
-    dt = 1e-03
-    step_num = 1000
-    I_0 = 0.2
+    dt = 1e-06
+    step_num = 100
+    I_0 = 0.5
     U_0 = 1500
     R = getR(I_0)
 
     data = [[0, I_0, U_0, R]]
-
-    for i in range(step_num):
-        I, U = difRungeKutta(dt, data[i][1], data[i][2])
+    #!!!
+    print(data[0])
+    for i in range(1, step_num):
+        I, U = difRungeKutta(dt, data[i-1][1], data[i-1][2])
         R = getR(I)
         data.append([dt*i, I, U, R])
+        print(data[i])
+    #specialSimpson(I_0)
+    #print(getR(I_0))
+    #for i in range(step_num):
+    #    print(data[i])
