@@ -66,7 +66,8 @@ def simpsonIntegr(a, b, func, stepcnt=41):
 
 def specialSimpson(I):
     R = 0.35
-    zList = [r*1.0/40/R for r in range(41)]
+
+    zList = [r*1.0/40 for r in range(41)]
     # print(zList)
     res = logInterpol(getT(I,zList[0]), tableSigm)*zList[0] +\
      logInterpol(getT(I,zList[40]), tableSigm)*zList[40]
@@ -103,15 +104,17 @@ def getR(I):
 
 
 def dU(I):
+#def dU(t, U_c, I):
     C_k = 150e-6
     return -I/C_k
 
 
 def dI(I, U_c):
-    R_k = 0.2
+#def dI(t, U_c, I):
+    R_k = 0.5
     L_k = 60e-6
     R_p = getR(I)
-    return (U_c - I*(R_k - R_p))/L_k
+    return (U_c - I*(R_k + R_p))/L_k
 
 
 def difRungeKutta(dt, I_n, U_n):
@@ -129,29 +132,33 @@ def difRungeKutta(dt, I_n, U_n):
 
     U_n1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
     I_n1 = I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
-    #I_n+1 = return I_n + dt*(k1 + 2*k2 + 2*k3 + k4)/6
-    #U_n+1 = U_n + dt*(m1 + 2*m2 + 2*m3 + m4)/6
+
     return I_n1, U_n1
 
+
+def printArr(arr):
+    s = ""
+    for i in arr:
+        s+= str(i)+ " "
+    print(s)
+
 if __name__ == "__main__":
-	#print(simpsonIntegr(0, 5, my_func))
-	#print(linInterpol(7, tableI, 1))
-    #print(logInterpol(13950, tableSigm))
-    dt = 1e-06
-    step_num = 100
+    t_n = 2e-4
+    step_num = 2000
+    dt = t_n/(step_num-1)
+    print(step_num)
+
     I_0 = 0.5
     U_0 = 1500
     R = getR(I_0)
 
     data = [[0, I_0, U_0, R]]
     #!!!
-    print(data[0])
+    # print(data[0])
+    printArr(data[0])
     for i in range(1, step_num):
         I, U = difRungeKutta(dt, data[i-1][1], data[i-1][2])
+        #U, I = Runge_Kutta_IV_3var_1step(dI, dU, dt, data[i-1][2], data[i-1][1], dt)
         R = getR(I)
         data.append([dt*i, I, U, R])
-        print(data[i])
-    #specialSimpson(I_0)
-    #print(getR(I_0))
-    #for i in range(step_num):
-    #    print(data[i])
+        printArr(data[i])
